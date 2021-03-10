@@ -21,7 +21,7 @@ export const formatMovementDate = function (date, locale) {
 export const getExchange = async function () {
   try {
     const res = await fetch(
-      `https://data.fixer.io/api/latest?access_key=${API_KEY}&base=EUR&symbols=RON,USD`
+      `http://data.fixer.io/api/latest?access_key=${API_KEY}&base=EUR&symbols=RON,USD`
     );
 
     const data = await res.json();
