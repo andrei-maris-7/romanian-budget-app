@@ -10,16 +10,23 @@
   "author": "Andrei Maris",
   "license": "ISC",
   "browserslist": [
-        "last 1 Chrome versions"
-    ],
+    "last 1 Chrome versions"
+  ],
   "devDependencies": {
     "@fortawesome/fontawesome": "^1.1.8",
     "@fortawesome/free-brands-svg-icons": "^5.15.2",
     "@fortawesome/free-regular-svg-icons": "^5.15.2",
     "@fortawesome/free-solid-svg-icons": "^5.15.2",
+    "git-scripts": "^0.4.3",
     "parcel": "^2.0.0-beta.1",
-    "sass": "^1.26.10"
+    "sass": "^1.26.10",
+    "surge": "^0.22.1"
   },
+  "git": {
+  "scripts": {
+    "pre-push": "surge --project ./ --romanian-budget-app.surge.sh"
+  }
+},
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.15.2",
     "uuid": "^3.4.0"
