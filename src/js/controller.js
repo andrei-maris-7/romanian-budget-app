@@ -77,7 +77,7 @@ const addMovement = async function (inputAmount, inputDescription, curr, type) {
   if (curr === "RON") {
     if (type === "expense") movementValue = -movementValue;
     let convertedValue = Math.round(await reverseExchange(movementValue));
-    if (!convertedValue) convertedValue = movementValue * 0.2;
+    if (!convertedValue) convertedValue = Math.round(movementValue * 0.2);
 
     curMovement.movement = movementValue;
     curMovement.movementEUR = convertedValue;
@@ -87,7 +87,7 @@ const addMovement = async function (inputAmount, inputDescription, curr, type) {
 
   if (curr === "EUR") {
     let convertedValue = Math.round(await setExchange(movementValue));
-    if (!convertedValue) convertedValue = movementValue * 4.87;
+    if (!convertedValue) convertedValue = Math.round(movementValue * 4.87);
 
     curMovement.movement = convertedValue;
     curMovement.movementEUR = movementValue;
