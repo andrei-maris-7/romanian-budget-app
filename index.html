@@ -11,25 +11,29 @@
   <!-- <link href="./src/icons/all.css" rel="stylesheet"> -->
 
   <link rel="stylesheet" href="src/sass/main.scss" />
+  <link rel="icon"
+    href="https://www.flaticon.com/svg/vstatic/svg/189/189093.svg?token=exp=1615044559~hmac=24e2fad26ebd6e59e6090cb3e05e664e"
+    type="image/icon type">
   <script defer src="src/js/controller.js"></script>
 
-  <title>Buget tineret</title>
+  <title>Budget app</title>
 </head>
 
 <body>
 
   <main class="app">
+
     <!-- BALANCE -->
     <div class="balance">
       <div>
         <p class="balance__label">Current balance</p>
         <p class="balance__date">
-          As of <span class="date">05/03/2037</span>
+          As of <span class="date">Today</span>
         </p>
       </div>
-      <p class="balance__value">0000€</p>
+      <p class="balance__value">0 RON</p>
       <p class="balance__value">=</p>
-      <p class="balance__value balance__value--EUR">0000€</p>
+      <p class="balance__value balance__value--EUR">0 EUR</p>
     </div>
   
     <!-- MOVEMENTS -->
@@ -51,8 +55,8 @@
       </div> -->
     </div>
   
-    
-  
+    <!-- OPERATIONS -->
+
     <!-- OPERATION: Deposit RON -->
     <div class="operation operation--deposit">
       <h2>Deposit RON</h2>
@@ -61,13 +65,13 @@
         <input type="number" class="form__input form__input--deposit-amount" />
         
         <button class="form__btn form__btn--deposit">&rarr;</button>
-
+        
         <label class="form__label">Description</label>
         <label class="form__label">Amount</label>
         
       </form>
     </div>
-
+    
     <!-- OPERATION: Deposit EUR -->
     <div class="operation operation--depositEUR">
       <h2>Deposit EUR</h2>
@@ -75,12 +79,13 @@
         <input type="text" class="form__input form__input--depositEUR-description" />
         <input type="number" class="form__input form__input--depositEUR-amount" />
         <button class="form__btn form__btn--depositEUR">&rarr;</button>
-    
+        
         <label class="form__label">Description</label>
         <label class="form__label">Amount</label>
       </form>
     </div>
   
+    
     <!-- OPERATION: EXPENSE -->
     <div class="operation operation--expense">
       <h2>Expense RON</h2>
@@ -95,33 +100,29 @@
       </form>
     </div>
 
+
     <!-- SUMMARY -->
     <div class="summary">
       <p class="summary__label">In</p>
-      <p class="summary__value summary__value--in">0000€</p>
+      <p class="summary__value summary__value--in">0 RON</p>
       <p class="summary__label">Out</p>
-      <p class="summary__value summary__value--out">0000€</p>
-      
-      <div class="custom__filter--select">
-       <select class="filter__movement-list">
-        <option value="ALL">RON + EUR</option>
-        <option value="RON">RON</option>
-        <option value="EUR">EUR</option>
-      </select>
-      <span class="custom__filter--arrow"> </span>
-      </div>
+      <p class="summary__value summary__value--out">0 RON</p>
 
-      <button class="btn--sort btn--sort-ascending">&uparrow; SORT</button>
+      <!-- <button class="btn--sort btn--sort-ascending">&uparrow; SORT</button> -->
       <button class="btn--sort btn--sort-descending">&downarrow; SORT</button>
+
+      <div class="custom__filter--select">
+        <select class="filter__movement-list">
+          <option value="ALL">RON + EUR</option>
+          <option value="RON">RON</option>
+          <option value="EUR">EUR</option>
+        </select>
+        <span class="custom__filter--arrow"> </span>
+      </div>
     
     </div>
 
-    
-
-    
-    
   </main>
-
 
 </body>
 

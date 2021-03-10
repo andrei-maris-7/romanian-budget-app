@@ -1,8 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-
-// VARIABILE
-
-const API_KEY = "260995e8ca600b01e5c82830dbc9ff7b";
+import { setExchange, reverseExchange, formatMovementDate } from "./helpers";
 
 // SELECTORS
 
@@ -21,8 +18,7 @@ const btnExpense = document.querySelector(".form__btn--expense");
 
 const btnSortDescending = document.querySelector(".btn--sort-descending");
 const selectedFilter = document.querySelector(".filter__movement-list");
-const btnSortAscending = document.querySelector(".btn--sort-ascending");
-const btnDeleteMovement = document.querySelector(".movements__delete--btn");
+// const btnSortAscending = document.querySelector(".btn--sort-ascending");
 
 const inputDepositAmount = document.querySelector(
   ".form__input--deposit-amount"
@@ -44,8 +40,6 @@ const inputExpenseAmount = document.querySelector(
 const inputExpenseDescription = document.querySelector(
   ".form__input--expense-description"
 );
-// const inputTransferAmount = document.querySelector(".form__input--amount");
-// const inputTransferTo = document.querySelector(".form__input--to");
 
 // STATE
 
@@ -59,225 +53,125 @@ const state = {
   filter: selectedFilter.value,
 };
 
-// const movementsTest = state.movements
-//   .slice()
-//   .sort((a, b) => a.movement - b.movement);
-
-// console.log(movementsTest);
-
-// HELPERS
-
-const addMovUpdate = function (mov) {
-  // Update State
-  state.itemID++;
-  state.movements.push(mov);
-
-  // Update UI
-
-  updateUI(state);
-  updateStorage(state.movements);
-};
-
-const createDate = function () {
-  const date = new Date();
-  const movDate = formatMovementDate(date, state.locale);
-
-  return movDate;
-};
-
-// FUNCTIONS
-
-// //  Local storage
+// LOCAL STORAGE
 
 const updateStorage = function (newArr) {
   localStorage.setItem("transactions", JSON.stringify(newArr));
 };
 
-// const clearTransactions = function () {
-//   localStorage.clear("transactions");
-// };
-
-// Exchange
-
-const getExchange = async function () {
-  try {
-    const res = await fetch(
-      `http://data.fixer.io/api/latest?access_key=&base=EUR&symbols=RON,USD`
-    );
-
-    const data = await res.json();
-    // if (!data.success) throw new Error(`${data.error.info}`);
-
-    return data.rates.RON;
-  } catch (err) {
-    // console.error(err);
-  }
+const clearTransactions = function () {
+  localStorage.clear("transactions");
 };
 
-const setExchange = async function (multiplier) {
-  try {
-    const result = await getExchange();
-    console.log(multiplier * result);
+// ADD MOVEMENTS
 
-    return multiplier * result;
-  } catch (err) {
-    console.error(err);
+const addMovement = async function (inputAmount, inputDescription, curr, type) {
+  let movementValue = Number(inputAmount.value);
+  if (movementValue <= 0) return;
+  const movementDescription = inputDescription.value;
+
+  let curMovement = {};
+
+  // RON MOVEMENT
+
+  if (curr === "RON") {
+    if (type === "expense") movementValue = -movementValue;
+    let convertedValue = Math.round(await reverseExchange(movementValue));
+    if (!convertedValue) convertedValue = movementValue * 0.2;
+
+    curMovement.movement = movementValue;
+    curMovement.movementEUR = convertedValue;
   }
-};
 
-const reverseExchange = async function (multiplier) {
-  try {
-    const result = await getExchange();
+  // EUR MOVEMENT
 
-    const reversed = +(1 / result).toFixed(4);
+  if (curr === "EUR") {
+    let convertedValue = Math.round(await setExchange(movementValue));
+    if (!convertedValue) convertedValue = movementValue * 4.87;
 
-    console.log(reversed);
-
-    return reversed * multiplier;
-  } catch (err) {
-    console.error(err);
+    curMovement.movement = convertedValue;
+    curMovement.movementEUR = movementValue;
   }
-};
 
-// // Date & time
+  // CREATE MOVEMENT DATE
 
-const formatMovementDate = function (date, locale) {
-  const calcDaysPassed = (date1, date2) =>
-    Math.round(Math.abs(date2 - date1) / (1000 * 60 * 60 * 24));
+  const date = new Date();
+  const movementDate = formatMovementDate(date, state.locale);
 
-  const daysPassed = calcDaysPassed(new Date(), date);
-  console.log(daysPassed);
+  // CREATE MOVEMENT OBJECT
+  curMovement.currency = curr;
+  curMovement.description = movementDescription;
+  curMovement.type = type;
+  curMovement.date = movementDate;
+  curMovement.id = uuidv4();
 
-  // if (daysPassed === 0) return "Today";
-  // if (daysPassed === 1) return "Yesterday";
-  // if (daysPassed <= 7) return `${daysPassed} days ago`;
+  // ADD MOVEMENT OBJECT TO ARRAY
 
-  return new Intl.DateTimeFormat(locale).format(date);
+  state.movements.push(curMovement);
+  state.itemID++;
+
+  // RESETTING FIELDS
+
+  inputAmount.value = "";
+  inputDescription.value = "";
+
+  // Update UI
+
+  updateUI(state);
+  updateStorage(state.movements);
 };
 
 // EVENT HANDLERS
 
-btnDeposit.addEventListener("click", async function (e) {
+btnDeposit.addEventListener("click", function (e) {
   e.preventDefault();
-
-  // Add movement
-  const depositValue = Number(inputDepositAmount.value);
-  const descriptionValue = inputDepositDescription.value;
-
-  let convertedValue = Math.round(await reverseExchange(depositValue));
-  if (!convertedValue) convertedValue = depositValue * 0.2;
-
-  // const depositDate = new Date().toISOString().slice(0, 10);
-  const date = new Date();
-  const depositDate = formatMovementDate(date, state.locale);
-
-  if (depositValue > 0) {
-    const curMovement = {
-      currency: "RON",
-      movement: depositValue,
-      movementEUR: convertedValue,
-      description: descriptionValue,
-      type: "deposit",
-      date: depositDate,
-      id: uuidv4(),
-    };
-
-    state.movements.push(curMovement);
-    state.itemID++;
-  }
-
-  // Update UI
-
-  // Resetting
-
-  inputDepositAmount.value = "";
-  inputDepositDescription.value = "";
-
-  updateUI(state);
-  updateStorage(state.movements);
-
-  console.log(state.movements);
+  addMovement(inputDepositAmount, inputDepositDescription, "RON", "deposit");
 });
 
-btnDepositEUR.addEventListener("click", async function (e) {
+btnDepositEUR.addEventListener("click", function (e) {
   e.preventDefault();
-  const depositValue = Number(inputDepositEuroAmount.value);
-  const descriptionValue = inputDepositEuroDescription.value;
-
-  let convertedValue = Math.round(await setExchange(depositValue));
-  if (!convertedValue) convertedValue = depositValue * 4.87;
-
-  // const depositDate = new Date().toISOString().slice(0, 10);
-  const date = new Date();
-  const depositDate = formatMovementDate(date, state.locale);
-
-  if (depositValue > 0) {
-    const curMovement = {
-      currency: "EUR",
-      movement: convertedValue,
-      movementEUR: depositValue,
-      description: descriptionValue,
-      type: "deposit",
-      date: depositDate,
-      id: uuidv4(),
-    };
-
-    state.movements.push(curMovement);
-    state.itemID++;
-  }
-
-  // Update UI
-
-  // Resetting
-
-  inputDepositEuroAmount.value = "";
-  inputDepositEuroDescription.value = "";
-
-  updateUI(state);
-  updateStorage(state.movements);
-
-  console.log(state.movements);
+  addMovement(
+    inputDepositEuroAmount,
+    inputDepositEuroDescription,
+    "EUR",
+    "deposit"
+  );
 });
 
-btnExpense.addEventListener("click", async function (e) {
+btnExpense.addEventListener("click", function (e) {
+  e.preventDefault();
+  addMovement(inputExpenseAmount, inputExpenseDescription, "RON", "expense");
+});
+
+// SORT MOVEMENTS
+
+const sortClass = function (btn) {
+  if (btn.classList.contains("btn--sort-active")) {
+    btn.classList.remove("btn--sort-active");
+  } else btn.classList.add("btn--sort-active");
+};
+
+btnSortDescending.addEventListener("click", function (e) {
   e.preventDefault();
 
-  // Add expense
-  const expenseValue = Number(inputExpenseAmount.value);
-  const descriptionValue = inputExpenseDescription.value;
+  sortClass(btnSortDescending);
 
-  let convertedValue = Math.round(await reverseExchange(expenseValue));
-  if (!convertedValue) convertedValue = expenseValue * 0.2;
-
-  const date = new Date();
-  const expenseDate = formatMovementDate(date, state.locale);
-
-  if (expenseValue > 0) {
-    const curMovement = {
-      currency: "RON",
-      movement: -expenseValue,
-      movementEUR: -convertedValue,
-      description: descriptionValue,
-      type: "expense",
-      date: expenseDate,
-      id: uuidv4(),
-    };
-
-    state.movements.push(curMovement);
-    state.itemID++;
-    console.log(state.movements);
-  }
-
-  // Update UI
-
-  updateUI(state);
-  updateStorage(state.movements);
-
-  inputExpenseAmount.value = "";
-  inputExpenseDescription.value = "";
-
-  console.log(state.movements);
+  displayMovements(state.movements, !state.sorted);
+  state.sorted = !state.sorted;
 });
+
+// FILTER MOVEMENTS
+
+selectedFilter.addEventListener("change", function () {
+  selectedFilter.value === "ALL" ? (state.filter = "ALL") : state.filter;
+  selectedFilter.value === "RON" ? (state.filter = "RON") : state.filter;
+  selectedFilter.value === "EUR" ? (state.filter = "EUR") : state.filter;
+
+  displayMovements(state.movements, state.sorted, state.filter);
+  updateUI(state);
+});
+
+// DELETE MOVEMENT
 
 containerMovements.addEventListener("click", function (e) {
   // State deletion
@@ -286,19 +180,11 @@ containerMovements.addEventListener("click", function (e) {
 
   state.movements = state.movements.filter((item) => item.id !== itemDataID);
 
-  console.log(state.movements);
-
   // Local storage deletion
 
   updateStorage(state.movements);
 
   // UI deletion
-
-  // console.log(item);
-
-  // console.log(item.dataset.id);
-
-  // console.log(itemDataID);
 
   if (!item.classList.contains("del--btn")) return;
 
@@ -306,27 +192,9 @@ containerMovements.addEventListener("click", function (e) {
   movementsRow.parentNode.removeChild(movementsRow);
 
   updateUI(state);
-
-  console.log(state.itemID);
 });
 
-btnSortDescending.addEventListener("click", function (e) {
-  e.preventDefault();
-  displayMovements(state.movements, !state.sorted);
-  state.sorted = !state.sorted;
-
-  console.log(state.movements);
-});
-
-selectedFilter.addEventListener("change", function () {
-  selectedFilter.value === "ALL" ? (state.filter = "ALL") : state.filter;
-  selectedFilter.value === "RON" ? (state.filter = "RON") : state.filter;
-  selectedFilter.value === "EUR" ? (state.filter = "EUR") : state.filter;
-
-  console.log(state.filter);
-
-  displayMovements(state.movements, state.sorted, state.filter);
-});
+// END OF EVENT HANDLERS
 
 // UI DISPLAY
 
@@ -337,8 +205,6 @@ const displayMovements = function (
 ) {
   // empty HTML elements
   containerMovements.innerHTML = "";
-
-  // folosim SLICE ca sa copiem arrayul, pentru ca sort-ul muteaza arrayul original
 
   let movs = movements;
 
@@ -368,9 +234,6 @@ const displayMovements = function (
     movs = movements.filter((elem) => elem.currency === "EUR");
   }
 
-  console.log(movs);
-  console.log(state.sorted);
-
   // Loop through movements array
   movs.forEach((mov, i) => {
     const type = mov.type;
@@ -381,20 +244,17 @@ const displayMovements = function (
       mov.currency
     }">${i + 1} ${type} ${mov.currency}</div>
           <div class="movements__date">${mov.date}</div>
-          <div class="movements__value">${mov.description}</div>
+          <div class="movements__description">${mov.description}</div>
           <div class="movements__value">${mov.movement} RON</div>
-          <div class="movements__value">${mov.movementEUR} EUR</div>
+          <div class="movements__valueEUR">${mov.movementEUR} EUR</div>
           <div class="movements__delete--btn"><i class="fa fa-times del--btn" aria-hidden="true" data-id="${
             mov.id
           }"></i></div>
     </div>
-    
+
     `;
     // Actually adding movements
     containerMovements.insertAdjacentHTML("afterbegin", html);
-
-    //
-    calcDisplaySummary(movs);
   });
 };
 
@@ -413,6 +273,8 @@ const displayTime = function () {
     now
   );
 };
+
+// CALCULATE FUNCTIONS
 
 const calcDisplayBalance = function (acc) {
   const movementsArr = acc.movements.map((elem) => elem.movement);
@@ -433,7 +295,14 @@ const calcDisplayBalanceEUR = function (acc) {
 const calcDisplaySummary = function (acc) {
   let movementsArr;
 
+  // ALL + RON FILTERING
+
   movementsArr = acc.map((elem) => elem.movement);
+
+  if (state.filter === "RON")
+    movementsArr = acc
+      .filter((elem) => elem.currency === "RON")
+      .map((elem) => elem.movement);
 
   const incomes = movementsArr
     .filter((mov) => mov > 0)
@@ -445,8 +314,12 @@ const calcDisplaySummary = function (acc) {
     .reduce((acc, mov) => acc + mov, 0);
   labelSumOut.textContent = `${Math.abs(out)} RON`;
 
+  // EUR FILTERING
+
   if (state.filter === "EUR") {
-    movementsArr = acc.map((elem) => elem.movementEUR);
+    movementsArr = acc
+      .filter((elem) => elem.currency === "EUR")
+      .map((elem) => elem.movementEUR);
 
     const incomes = movementsArr
       .filter((mov) => mov > 0)
@@ -459,6 +332,8 @@ const calcDisplaySummary = function (acc) {
     labelSumOut.textContent = `${Math.abs(out)} EUR`;
   }
 };
+
+// UPDATE UI
 
 const updateUI = function (acc) {
   // Display time
@@ -481,9 +356,7 @@ const updateUI = function (acc) {
 
 const init = function () {
   const storage = localStorage.getItem("transactions");
-  console.log(storage);
   if (storage) state.movements = JSON.parse(storage);
-  console.log(state.movements);
   updateUI(state);
 };
 
