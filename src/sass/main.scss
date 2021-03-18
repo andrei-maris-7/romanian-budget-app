@@ -31,7 +31,7 @@ body {
 }
 
 .balance {
-  grid-column: 1 / span 2;
+  grid-column: 1 / -1;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -75,6 +75,7 @@ body {
     padding: 0.1rem 1rem;
     border-radius: 10rem;
     margin-right: 2rem;
+    align-self: flex-start;
     align-items: center;
 
     &--depositRON {
@@ -93,12 +94,14 @@ body {
   &__date {
     font-size: 1.1rem;
     text-transform: uppercase;
+    margin-right: 1rem;
     font-weight: 500;
     color: #666;
   }
 
   &__description {
     font-size: 1.5rem;
+    margin-right: 1rem;
     margin-left: auto;
   }
 
@@ -316,12 +319,7 @@ h2 {
 }
 
 @media (max-width: 950px) {
-  .app {
-    position: relative;
-    max-width: 140rem;
-    margin: 4rem auto;
-    gap: 2rem;
-  }
+  
   .movements {
     &__value {
       font-size: 1.2rem;
@@ -344,4 +342,71 @@ h2 {
   .btn--sort {
     font-size: 1.2rem;
   }
+}
+
+@media (max-width: 820px) {
+  .app {
+   grid-template-columns: 1fr;
+   grid-template-rows: auto repeat(3, 15rem) auto repeat(3, 15rem);
+  }
+
+  .balance {
+
+  &__value {
+    font-size: 3rem;
+    font-weight: 400;
+  }
+  }
+.summary {
+  margin-bottom: 2rem;
+}
+
+  .operation {
+
+  &--deposit {
+    grid-row: 6 / span 1;
+  }
+
+  &--depositEUR {
+    grid-row: 7 / span 1;
+  }
+
+  &--expense {
+    grid-row: 8 /span 1
+  }
+}
+}
+
+@media (max-width: 550px) {
+  .btn--sort {
+    font-size: 1rem;
+  }
+
+  select {
+    font-size: 1.3rem;
+  }
+}
+
+@media (max-width: 450px) {
+
+
+.summary {
+  margin-bottom: 2rem;
+
+}
+
+  .operation {
+
+  &--deposit {
+    grid-row: 6 / span 1;
+  }
+
+  &--depositEUR {
+    grid-row: 7 / span 1;
+  }
+
+  &--expense {
+    grid-row: 8 /span 1
+  }
+}
 }
