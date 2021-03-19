@@ -17,7 +17,6 @@ body {
   background-color: #f3f3f3;
   height: 100vh;
   padding: 2rem;
-  // position: absolute;
 }
 
 /* MAIN */
@@ -394,7 +393,7 @@ h2 {
     position: absolute;
   }
   .movements {
-    max-width: 100%;
+    max-width: auto;
   }
   .balance {
     flex-wrap: wrap;
