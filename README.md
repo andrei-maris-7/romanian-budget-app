@@ -1,4 +1,4 @@
-# budget-APP
+# Romanian budget-APP
 
 The #Romanian Budget application is designed for Romanian users who want to track their income and expenses. Why would anyone need such an application? Because even though mobile banking application use is rising, there may be people that want to have a quick and easy way to track their cash operations/expenses.
 There are three main operations a user can undertake in the #Romanian Budget application:
