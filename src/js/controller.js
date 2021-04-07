@@ -245,7 +245,7 @@ const displayMovements = function (
       mov.currency
     }">${i + 1} ${type} ${mov.currency}</div>
           <div class="movements__date">${mov.date}</div>
-      </div>
+       </div>
           <div class="movements__description">${mov.description}</div>
           <div class="movements__value">${mov.movement} RON</div>
           <div class="movements__valueEUR">${mov.movementEUR} EUR</div>
